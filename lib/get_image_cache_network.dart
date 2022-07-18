@@ -107,8 +107,6 @@ class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
       // Adding intercetors to handle cache and show logs
       _dio.interceptors.add(dioCacheInterceptor);
       _dio.interceptors.add(dioInterceptor);
-
-      getImageFromNetwork();
     });
 
     super.initState();
