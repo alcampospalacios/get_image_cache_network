@@ -1,10 +1,9 @@
 library get_image_cache_network;
 
 import 'dart:developer';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart' as dartz;
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
@@ -85,42 +84,53 @@ class GetImageCacheNetwork extends StatefulWidget {
 class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
   final Dio _dio = Dio();
 
-  ImageProvider? _imageProvider;
+  @override
+  void initState() {
+    WidgetsFlutterBinding.ensureInitialized();
+    // Inizialize path provider
+    AppPathProvider.initPath().then((value) {
+      // Creating interceptor to cache the image
+      final DioCacheInterceptor dioCacheInterceptor = DioCacheInterceptor(
+        options: CacheOptions(
+          store: HiveCacheStore(AppPathProvider.path),
+          policy: CachePolicy.refreshForceCache,
+          hitCacheOnErrorExcept: [],
+          maxStale: Duration(
+            days: widget.cacheDuration ?? 15,
+          ), //increase number of days for loger cache
+          priority: CachePriority.high,
+        ),
+      );
+      // Creating interceptor to log the request and response
+      final DioInterceptor dioInterceptor = DioInterceptor();
+
+      // Adding intercetors to handle cache and show logs
+      _dio.interceptors.add(dioCacheInterceptor);
+      _dio.interceptors.add(dioInterceptor);
+
+      getImageFromNetwork();
+    });
+
+    super.initState();
+  }
 
   /* Get image from network */
-  Future<dartz.Either<Failure, ImageProvider>> getImageFromNetwork() async {
-    // Creating interceptor to cache the image
-    final DioCacheInterceptor dioCacheInterceptor = DioCacheInterceptor(
-      options: CacheOptions(
-        store: HiveCacheStore(AppPathProvider.path),
-        policy: CachePolicy.refreshForceCache,
-        hitCacheOnErrorExcept: [],
-        maxStale: Duration(
-          days: widget.cacheDuration ?? 15,
-        ), //increase number of days for loger cache
-        priority: CachePriority.high,
-      ),
-    );
-    // Creating interceptor to log the request and response
-    final DioInterceptor dioInterceptor = DioInterceptor();
-
-    //this is for avoiding certificates error cause by dio
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-      return client;
-    };
-
-    // Adding intercetors to handle cache and show logs
-    _dio.interceptors.add(dioCacheInterceptor);
-    _dio.interceptors.add(dioInterceptor);
-
+  Future<dartz.Either<Failure, Uint8List>> getImageFromNetwork() async {
     // doing request to get image
     try {
-      final response = await _dio.get(widget.imageFromNetworkUrl);
-      _imageProvider = MemoryImage(response.data);
+      final response = await _dio.get(
+        widget.imageFromNetworkUrl,
+        options: Options(
+          responseType: ResponseType.bytes,
+          followRedirects: false,
+        ),
+      );
 
-      // Return imageProvider
-      return dartz.Right(_imageProvider!);
+      /* Convert bytes to Uint8List */
+      Uint8List bytes = Uint8List.fromList(response.data);
+
+      // Return image converted
+      return dartz.Right(bytes);
     } catch (e) {
       // Return error
       return const dartz.Left(Failure());
@@ -137,22 +147,23 @@ class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
           initialData: null,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             return snapshot.data != null
-                ? (snapshot.data as dartz.Either<Failure, ImageProvider>).fold(
+                ? (snapshot.data as dartz.Either<Failure, Uint8List>).fold(
                     (failure) => Image.asset(
                       widget.imageFromAssetsUrl,
+                      scale: 1,
                       fit: BoxFit.cover,
                       width: widget.width ?? 64,
                       height: widget.height ?? 64,
                     ),
-                    (imageProvider) => Image(
-                      image: imageProvider,
+                    (bytes) => Image.memory(
+                      bytes,
                       width: widget.width ?? 64,
                       height: widget.height ?? 64,
                     ),
                   )
                 : SizedBox(
-                    height: 64,
-                    width: 64,
+                    height: widget.height ?? 64,
+                    width: widget.width ?? 64,
                     child: Center(child: widget.loading ?? const CircularProgressIndicator(color: Color(0xff0abb87))));
           },
         ),
