@@ -126,10 +126,10 @@ packages:
   get_image_cache_network:
     dependency: "direct main"
     description:
-      path: "C:/Users/Alejandro/Documents/GIT/_flutter/package/get_image_cache_network/"
-      relative: false
+      path: "../.."
+      relative: true
     source: path
-    version: "0.0.1"
+    version: "1.0.0"
   hive:
     dependency: transitive
     description:
