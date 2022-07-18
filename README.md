@@ -14,25 +14,21 @@ and the Flutter guide for
 This package provides a configurable widget to display an image from the network or from the cache, it also provides an error widget in case of failures.
 
 ## Features
+![get_image_cache_network](https://user-images.githubusercontent.com/54634181/179444759-11f2f480-11e7-4ece-9727-32bb6463d934.gif)
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
 ```dart
-const like = 'sample';
+ GetImageCacheNetwork(
+            imageFromNetworkUrl: _imageUrl, // Image from the network
+            imageFromAssetsUrl: 'assets/placeholder.png', // Image for your placeholder image
+            width: MediaQuery.of(context).size.width * 0.8, // Optional width by default 64
+            height: MediaQuery.of(context).size.width * 0.5, // Optional height by default 64
+            cacheDuration: 10 // Optional duration of the file in cache 15 days by default
+            loading: const CircularProgressIndicator(color: Colors.blue), // Optional widget to do loading by default progress indicator with green color
+          )
 ```
 
 ## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+This package use dio to manage request and use hive to storage cache. 
