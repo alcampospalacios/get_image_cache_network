@@ -10,3 +10,7 @@ Fixed double request
 ## 0.0.3
 
 Fixed path_provider error platforms
+
+## 0.0.4
+
+Fixed dart formatter
