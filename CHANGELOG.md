@@ -17,4 +17,4 @@ Fixed dart formatter
 
 ## 0.0.5
 
-Added errorWidth, errorHeight, errorFit, errorScale, showLogs options
+Added fit, scale, errorWidth, errorHeight, errorFit, errorScale, showLogs options to configure widget
