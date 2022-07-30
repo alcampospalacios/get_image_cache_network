@@ -1,6 +1,6 @@
 name: get_image_cache_network
 description: Get image from the cache if exist or from network. In case of error show your placeholder, this package use Dio and Hive.
-version: 0.0.5
+version: 1.0.0
 repository: https://github.com/alcampospalacios/get_image_cache_network
 issue_tracker: https://github.com/alcampospalacios/get_image_cache_network/issues
 homepage: https://github.com/alcampospalacios/get_image_cache_network
