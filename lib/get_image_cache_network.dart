@@ -19,7 +19,8 @@ class DioInterceptor extends Interceptor {
   DioInterceptor();
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     // Showing logs of every request in console
     log("--> ${options.method != '' ? options.method.toUpperCase() : 'METHOD'} ${"${options.baseUrl}${options.path}"}");
 
@@ -39,7 +40,9 @@ class DioInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     log("--> START RESPONSE}");
-    log(response.statusCode != null ? response.statusCode.toString() : 'STATUS CODE');
+    log(response.statusCode != null
+        ? response.statusCode.toString()
+        : 'STATUS CODE');
 
     log("Headers:");
     response.headers.forEach((k, v) => log('$k: $v'));
@@ -193,7 +196,10 @@ class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
                 : SizedBox(
                     height: widget.height ?? 64,
                     width: widget.width ?? 64,
-                    child: Center(child: widget.loading ?? const CircularProgressIndicator(color: Color(0xff0abb87))));
+                    child: Center(
+                        child: widget.loading ??
+                            const CircularProgressIndicator(
+                                color: Color(0xff0abb87))));
           },
         ),
       ),
