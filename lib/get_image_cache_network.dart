@@ -19,8 +19,7 @@ class DioInterceptor extends Interceptor {
   DioInterceptor();
 
   @override
-  void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     // Showing logs of every request in console
     log("--> ${options.method != '' ? options.method.toUpperCase() : 'METHOD'} ${"${options.baseUrl}${options.path}"}");
 
@@ -40,9 +39,7 @@ class DioInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     log("--> START RESPONSE}");
-    log(response.statusCode != null
-        ? response.statusCode.toString()
-        : 'STATUS CODE');
+    log(response.statusCode != null ? response.statusCode.toString() : 'STATUS CODE');
 
     log("Headers:");
     response.headers.forEach((k, v) => log('$k: $v'));
@@ -68,17 +65,44 @@ class GetImageCacheNetwork extends StatefulWidget {
   final String imageFromAssetsUrl;
   final double? width;
   final double? height;
+  final double? errorWidth;
+  final double? errorHeight;
+  final BoxFit? fit;
+  final BoxFit? errorFit;
+  final double? scale;
+  final double? errorScale;
   final Widget? loading;
   final int? cacheDuration;
-  const GetImageCacheNetwork(
-      {Key? key,
-      required this.imageFromNetworkUrl,
-      required this.imageFromAssetsUrl,
-      this.width,
-      this.height,
-      this.loading,
-      this.cacheDuration})
-      : super(key: key);
+  final bool showLogs;
+
+  /// This class is used to get the image from the network or from the cache.
+  /// This [GetImageCacheNetwork] return a [Widget] that can be a image or a placeholder.
+  /// If there is no image in the cache, it will get the image from the network and save it in the cache.
+  /// If there is an image in the cache, it will get the image from the cache.
+  /// If there is an error, it will return a placeholder.
+  /// You can provide a [width], [height], [fit], [scale] to get a image with the correct size by default would be [64px],
+  ///  [BoxFit.cover], [1].
+  /// You can provide a [errorWidth], [errorHeight], [errorFit], [errorScale] to get a image with the correct size by default would be [64px],
+  /// [BoxFit.cover], [1].
+  /// You can provide a cacheDuration by default would be 15 days.
+  /// You can decide if you want to see the logs of request management [showLogs].
+  /// If there is not any errorSetting this take from the image setting or in case there is not exist from [defaults]
+  const GetImageCacheNetwork({
+    Key? key,
+    required this.imageFromNetworkUrl,
+    required this.imageFromAssetsUrl,
+    this.width,
+    this.height,
+    this.fit,
+    this.scale,
+    this.errorWidth,
+    this.errorHeight,
+    this.errorFit,
+    this.errorScale,
+    this.loading,
+    this.cacheDuration,
+    this.showLogs = false,
+  }) : super(key: key);
 
   @override
   State<GetImageCacheNetwork> createState() => _GetImageCacheNetworkState();
@@ -109,7 +133,9 @@ class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
 
       // Adding intercetors to handle cache and show logs
       _dio.interceptors.add(dioCacheInterceptor);
-      _dio.interceptors.add(dioInterceptor);
+      if (widget.showLogs) {
+        _dio.interceptors.add(dioInterceptor);
+      }
     });
 
     super.initState();
@@ -151,24 +177,23 @@ class _GetImageCacheNetworkState extends State<GetImageCacheNetwork> {
                 ? (snapshot.data as dartz.Either<Failure, Uint8List>).fold(
                     (failure) => Image.asset(
                       widget.imageFromAssetsUrl,
-                      scale: 1,
-                      fit: BoxFit.cover,
-                      width: widget.width ?? 64,
-                      height: widget.height ?? 64,
+                      scale: widget.errorScale ?? widget.scale ?? 1,
+                      fit: widget.errorFit ?? widget.fit ?? BoxFit.cover,
+                      width: widget.errorWidth ?? widget.width ?? 64,
+                      height: widget.errorHeight ?? widget.height ?? 64,
                     ),
                     (bytes) => Image.memory(
                       bytes,
+                      scale: widget.scale ?? 1,
                       width: widget.width ?? 64,
                       height: widget.height ?? 64,
+                      fit: widget.fit ?? BoxFit.cover,
                     ),
                   )
                 : SizedBox(
                     height: widget.height ?? 64,
                     width: widget.width ?? 64,
-                    child: Center(
-                        child: widget.loading ??
-                            const CircularProgressIndicator(
-                                color: Color(0xff0abb87))));
+                    child: Center(child: widget.loading ?? const CircularProgressIndicator(color: Color(0xff0abb87))));
           },
         ),
       ),

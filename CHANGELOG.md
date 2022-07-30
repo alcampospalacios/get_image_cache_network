@@ -14,3 +14,7 @@ Fixed path_provider error platforms
 ## 0.0.4
 
 Fixed dart formatter
+
+## 0.0.5
+
+Added errorWidth, errorHeight, errorFit, errorScale, showLogs options

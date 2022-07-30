@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Get_Image_Cache_Network',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -47,10 +47,10 @@ class _HomePageState extends State<HomePage> {
             imageFromAssetsUrl: 'assets/placeholder.png',
             width: MediaQuery.of(context).size.width * 0.8,
             height: MediaQuery.of(context).size.width * 0.5,
+            errorWidth: MediaQuery.of(context).size.width * 0.8,
+            errorHeight: MediaQuery.of(context).size.width * 0.5,
+            showLogs: true,
           )),
-          // const SizedBox(
-          //   height: 25,
-          // ),
           TextButton(
               onPressed: () {
                 setState(() {
@@ -59,9 +59,6 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               child: const Text('Get image from cache')),
-          // const SizedBox(
-          //   height: 10,
-          // ),
           TextButton(
               onPressed: () {
                 setState(() {
